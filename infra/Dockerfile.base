@@ -1,0 +1,7 @@
+FROM python:3.11-slim
+
+ENV UV_LINK_MODE=copy
+
+RUN pip install --no-cache-dir uv
+
+WORKDIR /app

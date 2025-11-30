@@ -1,17 +1,21 @@
-FROM python:3.11-slim
+ARG UV_BASE_IMAGE=python:3.11-slim
+FROM ${UV_BASE_IMAGE}
+
+# Ensure uv is available even if the base image doesn't include it
+RUN command -v uv >/dev/null 2>&1 || pip install --no-cache-dir uv
 
 WORKDIR /app
 
 COPY backend/pyproject.toml /app/pyproject.toml
 
-RUN pip install --no-cache-dir uv \
- && python - << 'EOF'
-import tomllib, subprocess
-with open("pyproject.toml", "rb") as f:
-    data = tomllib.load(f)
-deps = data["project"]["dependencies"]
-subprocess.check_call(["uv", "pip", "install", *deps])
-EOF
+# Install runtime dependencies declared in pyproject via uv (system site-packages)
+RUN python - <<'PY' > /tmp/requirements.txt
+import tomllib
+from pathlib import Path
+deps = tomllib.loads(Path("pyproject.toml").read_text())["project"]["dependencies"]
+print("\n".join(deps))
+PY
+RUN uv pip install --system --no-cache -r /tmp/requirements.txt
 
 COPY backend/app /app/app
 

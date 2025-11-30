@@ -15,3 +15,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest", "httpx"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
