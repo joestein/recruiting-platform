@@ -1,443 +1,124 @@
-Developer Guide for the Recruiting SaaS Platform (Codex Project)
+# Developer Guide – Recruiting SaaS Platform
 
-Welcome to your Codex-powered Recruiting SaaS Platform.
-This document outlines everything you need to know to run, extend, and build on the project.
+Welcome to the Codex-powered Recruiting SaaS Platform. This guide covers how to run, extend, and deploy the project.
 
-1. Overview
+## 1) Overview
+- Full-stack recruiting platform with FastAPI backend + Streamlit frontend.
+- Features: job creation (manual/AI), candidate creation (manual/AI from resumes), job↔candidate matching (naive or OpenAI embeddings), recruiter chat agent, org/user management, applications, match logs.
+- Optional OpenAI integration for embeddings and structured extraction.
 
-This project is a full-stack recruiting platform designed to allow:
-
-Job creation (manual or AI-assisted from natural language prompts and job-req uploads)
-
-Candidate creation (manual or AI-assisted from resume uploads)
-
-Matching between jobs and candidates (naive keyword match or OpenAI embeddings)
-
-Interactive chat agent (LangGraph-style recruiter assistant)
-
-Streamlit front-end for authentication, chat, job/candidate browsing, and matching views
-
-FastAPI backend with full REST API
-
-Organization, user, job, candidate, application, matching logs data model
-
-Optional OpenAI integration for embeddings + chat/structured extraction
-
-This setup gives you a ready-to-extend foundation for a SaaS recruiting product using Codex.
-
-2. Repo Structure
+## 2) Repo Structure
+```
 recruiting-platform/
 ├── backend/
-│   ├── app/
-│   │   ├── core/             # Config, DB, Security
-│   │   ├── models/           # SQLAlchemy models
-│   │   ├── schemas/          # Pydantic models
-│   │   ├── services/         # Matching + AI Agent logic
-│   │   ├── api/              # FastAPI routers
-│   │   └── main.py           # FastAPI entrypoint
-│   ├── pyproject.toml
-│   └── README.md
-│
+│   └── app/
+│       ├── core/       # Config, DB, security
+│       ├── models/     # SQLAlchemy models
+│       ├── schemas/    # Pydantic models
+│       ├── services/   # Matching + AI agent logic
+│       ├── api/        # FastAPI routers
+│       └── main.py     # FastAPI entrypoint
 ├── frontend/
 │   ├── streamlit_app.py
-│   ├── pages/                # Streamlit multipage UI
-│   ├── utils/api_client.py
-│   ├── requirements.txt
-│   └── README.md
-│
+│   ├── pages/          # Streamlit multipage UI
+│   └── utils/api_client.py
 ├── infra/
 │   ├── Dockerfile.backend
 │   ├── Dockerfile.frontend
 │   └── docker-compose.yml
-│
 ├── .env.example
-└── INSTRUCTIONS.md (this file)
+└── INSTRUCTIONS.md
+```
 
-3. Prerequisites
+## 3) Prerequisites
+- Python 3.11+
+- Docker + Docker Compose (optional but recommended)
+- OpenAI API key (optional; needed for embeddings/structured extraction)
+- Streamlit; FastAPI + Uvicorn
 
-You need:
+## 4) Running Locally
+**Option A: Local Python**
+- Backend:
+  - `cd backend`
+  - `cp ../.env.example .env` (optional)
+  - `uvicorn app.main:app --reload --port 8000`
+  - Open: http://localhost:8000/docs
+- Frontend:
+  - `cd frontend`
+  - `streamlit run streamlit_app.py`
+  - Open: http://localhost:8501
 
-Python 3.11+
+**Option B: Docker Compose (recommended)**
+- From repo root: `docker compose -f infra/docker-compose.yml up --build`
+- Services:
+  - Backend: http://localhost:8000
+  - API docs: http://localhost:8000/docs
+  - Frontend: http://localhost:8501
+- Stop: `docker-compose down`; detached: `docker-compose up -d`.
 
-Docker + Docker Compose (optional but recommended)
-
-OpenAI API key (optional, only needed for embedding-based matching & structured extraction)
-
-Streamlit
-
-FastAPI + Uvicorn
-
-4. Running the Project (Local Dev)
-Option 1: Local Python
-Backend:
-cd backend
-cp ../.env.example .env   # optional
-uvicorn app.main:app --reload --port 8000
-
-
-Go to:
-➡️ http://localhost:8000/docs
-
-Frontend:
-cd frontend
-streamlit run streamlit_app.py
-
-
-Go to:
-➡️ http://localhost:8501
-
-Option 2: Docker Compose (recommended)
-
-From repo root:
-
-docker compose -f infra/docker-compose.yml up --build
-
-
-This starts:
-
-Service	URL
-Backend	http://localhost:8000
-
-API Docs	http://localhost:8000/docs
-
-Frontend	http://localhost:8501
-5. Environment Variables
-
-.env.example includes:
-
+## 5) Environment Variables
+`.env.example` includes:
+```
 SECRET_KEY=CHANGE_ME
 SQLALCHEMY_DATABASE_URI=sqlite:///./dev.db
 BACKEND_CORS_ORIGINS=http://localhost:8501
-
-# OpenAI (optional)
 OPENAI_API_KEY=
 OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 OPENAI_CHAT_MODEL=gpt-4o-mini
 MATCHING_USE_OPENAI=false
-
-
-Set:
-
-MATCHING_USE_OPENAI=true to enable vector matching
-
-OPENAI_API_KEY for AI job/candidate extraction
-
-6. Core Features
-✔️ Authentication
-
-Register user + organization
-
-JWT login
-
-Current user / profile endpoint
-
-✔️ Jobs
-
-CRUD jobs
-
-AI-assisted job creation
-
-From prompt
-
-From uploaded job req file
-
-✔️ Candidates
-
-CRUD candidates
-
-AI-assisted candidate creation
-
-Upload resume → structured candidate record
-
-✔️ Matching Engine
-
-Modes:
-
-Naive keyword overlap
-
-OpenAI embeddings (optional)
-
-Endpoints:
-
-/matching/candidates_for_job
-
-/matching/jobs_for_candidate
-
-Matching logs recorded for auditability.
-
-✔️ Recruiter Chat Agent
-
-Understands commands like:
-
-"create a new job for a senior backend engineer"
-"match candidates for job 5"
-"list jobs"
-"summarize candidate 3"
-
-
-Backed by LangGraph-inspired routing logic.
-
-✔️ Streamlit UI
-
-Login/Register
-
-AI Chat assistant
-
-Jobs & Candidates search
-
-Matching UI
-
-Resume upload → new candidate creation
-
-Job req upload → new job creation
-
-All functions call backend over REST.
-
-7. How to Extend
-
-This is the important section for ongoing work.
-
-7.1 Add new agent skills
-
-Add new handlers in:
-
-backend/app/services/agent.py
-
-
-Pattern:
-
-if "some command" in lower:
-    # handle it
-
-
-Add:
-
-parsing
-
-database interactions
-
-domain logic
-
-Then reply with a message the chat UI will render.
-
-7.2 Add new REST endpoints
-
-Create a new router file:
-
-backend/app/api/routes/my_feature.py
-
-
-Register it in:
-
-backend/app/api/routes/__init__.py
-
-
-Follow existing router patterns.
-
-7.3 Add new models
-
-Add SQLAlchemy model:
-
-backend/app/models/
-
-
-Add Pydantic schema:
-
-backend/app/schemas/
-
-
-Run migrations manually (SQLite auto-creates on import).
-
-7.4 Modify matching logic
-
-Edit:
-
-backend/app/services/matching.py
-
-
-You can add:
-
-custom scoring
-
-skills normalization
-
-weighting (title vs description vs experience)
-
-resume parsing integrations
-
-embeddings caching
-
-7.5 Extend Streamlit frontend
-
-Add new pages under:
-
-frontend/pages/
-
-
-Use the API client:
-
-from utils.api_client import APIClient
-api = APIClient(access_token)
-
-
-Add:
-
-new tables
-
-forms
-
-wizards
-
-chat workflows
-
-8. Deployment Strategy
-Option 1: Docker on EC2 or VM
-
-Build backend image
-
-Build frontend image
-
-Point domain → Nginx → containers
-
-Option 2: AWS App Runner
-
-Frontend: Streamlit container
-
-Backend: FastAPI container
-
-Enable WSS (Streamlit websocket needs this)
-
-Option 3: Kubernetes
-
-Good for scaling:
-
-Recruiter agent service
-
-Matching workers
-
-File ingestion workers
-
-Background job scheduler (Celery/Huey/RQ)
-
-9. Future Enhancements (Roadmap)
-
-These are natural next steps for this project:
-
-🔹 Resume Parser (OpenAI + custom heuristics)
-
-Extract:
-
-Skills
-
-Titles
-
-Dates
-
-Companies
-
-Seniority estimation
-
-Job history timeline
-
-🔹 Skills Tagging & Normalization
-
-Graph-based taxonomy + embeddings.
-
-🔹 Matching 2.0
-
-Weighted scoring
-
-Fine-tuned model
-
-Semantic + structured hybrid
-
-Diversity preferences
-
-Recruiter override scoring
-
-🔹 Applications Workflow
-
-Pipeline stages
-
-Automations (“email candidate next step”)
-
-Feedback collection
-
-Scorecards
-
-🔹 Teams & Permissions
-
-Multi-user org support
-
-Job owners
-
-Candidate pool restriction
-
-🔹 Billing
-
-Stripe metered billing
-
-per job
-
-per match
-
-per AI call
-
-🔹 Analytics Dashboard
-
-Time-to-fill
-
-Source-of-hire
-
-Funnel conversion metrics
-
-10. Using Codex to Continue Development
-
-Once you're inside the Codex environment:
-
-Ask Codex to:
-
-generate new Python routers
-
-extend models
-
-add validation
-
-implement new endpoints
-
-modify matching logic
-
-extend Streamlit UI
-
-integrate external APIs (LinkedIn, Greenhouse, Lever)
-
-write migrations
-
-add tests
-
-produce UML diagrams
-
-build full user onboarding flows
-
-produce marketing site copy
-
-Codex prompt example:
-Add a new /experience router that stores candidate job history. 
-It should support CRUD and also integrate into the matching logic.
-Also add a Streamlit page to manage experience records.
-
-11. Summary
-
-You now have:
-
-A full recruiting SaaS skeleton
-
-With AI job creation, AI candidate creation, matching engine, agent chat
-
-Fully wired FastAPI backend + Streamlit frontend
-
-Dockerized for easy deployment
-
-Extensible architecture for Codex-driven development
-
-This INSTRUCTIONS.md is your blueprint for building the full product.
+```
+- Set `MATCHING_USE_OPENAI=true` to enable embeddings-based matching.
+- Set `OPENAI_API_KEY` for AI job/candidate extraction.
+
+## 6) Core Features
+- **Auth:** org + user registration, JWT login, current user profile.
+- **Jobs:** CRUD; AI-assisted creation from prompt or uploaded job req.
+- **Candidates:** CRUD; AI-assisted creation from resume upload → structured record.
+- **Matching:** naive keyword or OpenAI embeddings; endpoints `/matching/candidates_for_job`, `/matching/jobs_for_candidate`; logs stored for audit.
+- **Recruiter Chat Agent:** commands like “create a new job…”, “match candidates for job 5”, “list jobs”, “summarize candidate 3”; LangGraph-style routing.
+- **Streamlit UI:** login/register, chat, job/candidate search, matching views, resume and job-req uploads; all via backend REST.
+
+## 7) How to Extend
+### 7.1 Add agent skills
+- File: `backend/app/services/agent.py`
+- Pattern: keyword detection → parsing → DB/service calls → text reply.
+
+### 7.2 Add REST endpoints
+- Create router: `backend/app/api/routes/my_feature.py`
+- Register in: `backend/app/api/routes/__init__.py`
+- Follow existing router patterns.
+
+### 7.3 Add models
+- SQLAlchemy model: `backend/app/models/`
+- Pydantic schema: `backend/app/schemas/`
+- Dev uses auto-create; for prod add migrations (see §8/9).
+
+### 7.4 Modify matching
+- File: `backend/app/services/matching.py`
+- Add custom scoring, normalization, weighting, embeddings caching, resume parsing hooks.
+
+### 7.5 Extend Streamlit
+- Add pages under `frontend/pages/`
+- Use `APIClient` (`from utils.api_client import APIClient`)
+- Build tables, forms, wizards, chat workflows.
+
+## 8) Deployment Options
+- **Docker on EC2/VM:** build backend/frontend images; front with Nginx → containers.
+- **AWS App Runner:** deploy backend + frontend containers; ensure WSS for Streamlit.
+- **Kubernetes:** scale recruiter agent, matching workers, file ingestion workers, schedulers (Celery/Huey/RQ).
+
+## 9) Roadmap Ideas
+- Resume parser (OpenAI + heuristics) for skills/titles/dates/seniority/timeline.
+- Skills tagging/normalization (taxonomy + embeddings).
+- Matching 2.0: weighted, hybrid semantic/structured, diversity prefs, recruiter overrides.
+- Applications workflow: pipeline stages, automations, feedback, scorecards.
+- Teams/permissions: multi-user org, job owners, candidate pool restrictions.
+- Billing: Stripe metered (per job/match/AI call).
+- Analytics: time-to-fill, source-of-hire, funnel conversion.
+
+## 10) Using Codex
+- Ask Codex to generate routers, extend models, add validation/endpoints, tweak matching, extend Streamlit, integrate external APIs (LinkedIn/Greenhouse/Lever), write migrations/tests, produce diagrams, build onboarding flows, or marketing copy.
+- Example prompt: “Add a new `/experience` router for candidate job history with CRUD, integrate into matching, and add a Streamlit page to manage experience records.”
+
+## 11) Summary
+- Full recruiting SaaS skeleton: AI job creation, AI candidate creation, matching engine, recruiter chat, FastAPI backend, Streamlit frontend, Dockerized deployment, and extensible architecture for Codex-driven development.
