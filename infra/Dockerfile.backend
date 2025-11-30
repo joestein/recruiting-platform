@@ -1,0 +1,22 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY backend/pyproject.toml /app/pyproject.toml
+
+RUN pip install --no-cache-dir uv \
+ && python - << 'EOF'
+import tomllib, subprocess
+with open("pyproject.toml", "rb") as f:
+    data = tomllib.load(f)
+deps = data["project"]["dependencies"]
+subprocess.check_call(["uv", "pip", "install", *deps])
+EOF
+
+COPY backend/app /app/app
+
+EXPOSE 8000
+
+ENV SQLALCHEMY_DATABASE_URI=sqlite:///./dev.db
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.backend
+    environment:
+      - SQLALCHEMY_DATABASE_URI=sqlite:///./dev.db
+      - SECRET_KEY=CHANGE_ME
+      - MATCHING_USE_OPENAI=false
+      # - OPENAI_API_KEY=sk-...
+      # - OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+      # - OPENAI_CHAT_MODEL=gpt-4o-mini
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.frontend
+    environment:
+      - API_URL=http://backend:8000/api/v1
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
