@@ -31,6 +31,31 @@ class AgeGraphClient(GraphClient):
         self._pool: Optional[asyncpg.pool.Pool] = None
         self._lock = asyncio.Lock()
 
+    def _inline_params(self, query: str, params: Dict[str, Any]) -> str:
+        """
+        Inline simple params into a Cypher string. This is a temporary workaround
+        for AGE parameter typing quirks; do not use with untrusted user input.
+        """
+        import re
+
+        def fmt(v: Any) -> str:
+            if isinstance(v, str):
+                escaped = v.replace('"', '\\"')
+                return f"\"{escaped}\""
+            if isinstance(v, bool):
+                return "true" if v else "false"
+            if v is None:
+                return "null"
+            return str(v)
+
+        def repl(match: re.Match[str]) -> str:
+            key = match.group(1)
+            if key in params:
+                return fmt(params[key])
+            return match.group(0)
+
+        return re.sub(r"\$(\w+)", repl, query)
+
     async def _get_pool(self) -> asyncpg.pool.Pool:
         if self._pool is None:
             async with self._lock:
@@ -62,12 +87,17 @@ class AgeGraphClient(GraphClient):
         await self.init_schema()
 
     async def run_cypher(self, query: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+        """
+        Execute Cypher against AGE. To avoid signature/typing issues, parameters are inlined
+        into the Cypher string. This is safe for our controlled YAML inputs; avoid using with untrusted user strings.
+        """
         pool = await self._get_pool()
         async with pool.acquire() as conn:
-            cypher_sql = f"SELECT * FROM cypher($1, $$ {query} $$, $2::json) AS (row agtype);"
-            param_payload = json.dumps(params or {})
-            result = await conn.fetch(cypher_sql, self.graph_name, param_payload)
-            # AGE returns agtype; convert to python dicts/values when possible
+            await conn.execute("SET search_path = ag_catalog, \"$user\", public;")
+            cypher_query = self._inline_params(query, params or {})
+            # Use literal graph name to avoid parameter parsing issues in AGE
+            cypher_sql = f"SELECT * FROM cypher('{self.graph_name}', $$ {cypher_query} $$) AS (row agtype);"
+            result = await conn.fetch(cypher_sql)
             rows = []
             for r in result:
                 val = r.get("row")

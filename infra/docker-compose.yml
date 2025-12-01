@@ -9,13 +9,21 @@ services:
       - SQLALCHEMY_DATABASE_URI=sqlite:///./dev.db
       - SECRET_KEY=CHANGE_ME
       - MATCHING_USE_OPENAI=false
+      - GRAPH_BACKEND=age
+      - AGE_HOST=age-db
+      - AGE_PORT=5432
+      - AGE_DB=recruiting
+      - AGE_USER=age
+      - AGE_PASSWORD=agepassword
+      - AGE_GRAPH_NAME=recruiting_graph
       # - OPENAI_API_KEY=sk-...
       # - OPENAI_EMBEDDING_MODEL=text-embedding-3-small
       # - OPENAI_CHAT_MODEL=gpt-4o-mini
     ports:
       - "8000:8000"
     depends_on:
-      - age-db
+      age-db:
+        condition: service_healthy
 
   frontend:
     build:

@@ -8,7 +8,7 @@ from ..models.application import Application
 from ..models.candidate import Candidate
 from ..models.job import Job
 from ..models.user import User
-from .agent_jobs import create_job_from_prompt
+from .agent_job import create_job_from_prompt
 from .matching import (
     CandidateMatch,
     JobMatch,

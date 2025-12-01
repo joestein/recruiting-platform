@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from ...models.user import User
 from ...schemas.jobs import JobFromPromptRequest, JobFromPromptResponse, JobFromReqResponse, JobOut
-from ...services.agent_jobs import create_job_from_prompt, create_job_from_req
+from ...services.agent_job import create_job_from_prompt, create_job_from_req
 from ..deps import get_current_user, get_db
 
 router = APIRouter(prefix="/agent/jobs", tags=["agent-jobs"])

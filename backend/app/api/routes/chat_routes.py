@@ -3,10 +3,10 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
-from ..core.config import get_settings
-from ..utils.langgraph_state import ChatState
-from ..schemas.chat import ChatRequest, ChatResponse, ChatMessage
-from .deps import get_current_user, get_db
+from ...core.config import get_settings
+from ...utils.langgraph_state import ChatState
+from ...schemas.chat import ChatRequest, ChatResponse, ChatMessage
+from ..deps import get_current_user, get_db
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 settings = get_settings()

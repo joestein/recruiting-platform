@@ -1,110 +1,77 @@
-📣 Welcome Contributors — Let’s Build the Future of Technical Recruiting Together
+# Recruiting Platform – Developer Guide (Quickstart)
 
-This project is building a next-generation AI-assisted recruiting platform — built in public, open-source, and shaped by real engineers from day one.
+## 🚀 Get started fast (Docker Compose)
+```bash
+git clone https://github.com/joestein/recruiting-platform.git
+cd recruiting-platform
 
-If you're here, it means you’re someone I want to collaborate with.
-You’re not “free labor.”
-You're a partner in the foundation of something big.
+# Optional: copy env and adjust secrets/keys
+cp .env.example .env
 
-And in return, I’m offering something most open-source repos don’t:
+# Bring up backend + frontend (+ AGE graph)
+docker compose -f infra/docker-compose.yml up --build
 
-🌟 What You Gain by Contributing
-1. Visibility to Companies Actively Hiring
+# Services
+# - Backend API: http://localhost:8000 (docs at /docs)
+# - Frontend (Streamlit): http://localhost:8501
+# - AGE (graph, for Q&A/traits): localhost:5432
+```
 
-I work directly with teams who are constantly looking for strong engineers.
-By contributing here, you’re building a public portfolio that hiring managers actually see.
+## 🔧 Local dev without Docker
+- Backend: see `backend/README.md` (uv + uvicorn).
+- Frontend: see `frontend/README.md` (uv + streamlit).
+- Ensure `.env` has correct `API_URL`/DB/graph settings.
 
-2. A Warm Introduction When You're Ready
+## 🧠 What’s inside
+- FastAPI backend: auth/org management, jobs, candidates, applications, matching, agents, Q&A router.
+- Streamlit frontend: auth, recruiter chat, job/candidate pages, matching views, uploads.
+- AI/agents: LangGraph router, Q&A flows (YAML-defined), general chat, calendar stub; Instructor-based classification; graph-backed traits (AGE locally, Neptune-ready).
+- Infra: Dockerfiles, Compose (backend, frontend, AGE), OpenAI optional.
 
-Top contributors aren’t just names on GitHub. I personally get to know your strengths, your code style, and your interests. When you’re looking for your next role, I can put your background and work directly in front of decision-makers.
+## 📂 Repo layout
+- `backend/` — FastAPI app (`app/main.py`, `api/`, `services/`, `qna_graph/`, `agents/`).
+- `frontend/` — Streamlit app (`streamlit_app.py`, `pages/`, `utils/api_client.py`).
+- `infra/` — Dockerfiles, docker-compose.yml.
+- `docs/` — Q&A graph and AGE local dev guides.
+- `.env.example` — config template (DB, OpenAI, graph).
 
-3. Interview Coaching & Insider Advice
+## ✨ Contributing (short version)
+- Fork & branch; use uv for Python deps (`uv sync`), no pip.
+- Run lint/tests locally if added.
+- Open a PR with clear description/screenshots for UI.
 
-I’ve spent years on the hiring side.
-I know what teams look for, what signals matter, and what separates top candidates.
-Contributors get tips, prep, and specific feedback so you’re not going into interviews “cold.”
+---
 
-4. Real-world, production-grade experience
+# Welcome Contributors
 
-This project isn’t “hello world.”
-We’re building:
+This project builds an AI-assisted recruiting platform in public. If you contribute, you’re a partner— not “free labor.” I actively surface strong contributors to hiring teams and help with intros and interview prep.
 
-- FastAPI backend
-- Streamlit UI
-- AI-driven matching engine
-- Job & candidate processing pipelines
-- Agent-like chat system
-- Real customers in sight
-- Running it all in AWS in production
+## What you gain
+- Visibility to teams hiring.
+- Warm introductions when you’re ready.
+- Interview coaching and practical feedback.
+- Real-world, production-grade experience (FastAPI, Streamlit, AI/agents, matching, AWS).
 
-Your contributions will sharpen your engineering skills and give you something meaningful to showcase.
+## What we’re building
+- Create jobs from prompts or uploads; parse resumes to structured profiles.
+- Match candidates ↔ jobs with explainable scoring.
+- Multi-step recruiter agent chat with Q&A flows.
+- Clean REST API + Streamlit UI; OpenAI-enhanced flows (optional).
 
-🚀 What We’re Building
+## How to get involved
+- Star/fork the repo.
+- If the platform isn’t live yet, connect on LinkedIn and share your resume; grab an open GitHub issue if you see a fit.
 
-A full recruiting platform that supports:
+## Stack snapshot
+- Backend: Python, FastAPI, SQLAlchemy, Pydantic, LangGraph.
+- Frontend: Streamlit.
+- DB: SQLite (dev) → Postgres (prod); AGE graph locally; Neptune-ready.
+- AI: OpenAI embeddings/structured extraction (optional).
+- Infra: Docker; App Runner/ECS/K8s in sight.
 
-- Creating jobs from prompts or uploaded job descriptions
-- Parsing resumes into structured profiles
-- Matching candidates ↔ jobs with explainable scoring
-- Multi-step recruiter agent chat
-- Clean REST API + Streamlit UI
-- Modern modular architecture
-- OpenAI-enhanced flows (optional)
+## Roadmap highlights
+- Matching 2.0; candidate pools; interview/outreach helpers.
+- ATS integrations; plugins; public API; webhooks; scorecard marketplace.
 
-It’s a real SaaS, developed openly with contributors like you.
-
-🤝 How to Get Involved
-1. Star and Fork the Repo
-
-It helps visibility and keeps you in the loop.
-
-2. Send me your resume on LinkedIn
-
-Since the platform isn't live yet send me your resume and we can chat to see what you can help with that isn't already a github issue created in the platform to-do. If you find a github issue you can work on please feel free to pick it up.
-
-
-🧪 Current Tech Stack (to evolove from here)
-
-Backend: Python, FastAPI, SQLAlchemy, Pydantic
-Frontend: Streamlit
-Database: SQLite (dev) → PostgreSQL (prod)
-AI: OpenAI embeddings, structured extraction
-Infra: Docker, App Runner / ECS / K8s (future)
-
-If you're a Python engineer, ML engineer, UI builder, DevOps person, or just curious—you're welcome.
-
-🗺 Roadmap Snapshot
-
-- Matching 2.0
-- Candidate Pools
-- Interview assistance
-- Outreach generation
-- ATS integrations
-- Plugins + extensibility
-- Public API
-- Webhooks
-- Marketplace of scorecards/templates
-
-There’s a lot to do—and a lot of room for contributors to influence direction.
-
-💬 When its interview time.
-
-I will help you as a mentor for your role.
-
-✨ Final Note
-
-This repo is more than code. 
-It’s a community of engineers building something meaningful—together.
-
-And if you put in good work here, I will go out of my way to:
-
-- introduce you to hiring teams
-- advocate for you
-- coach you through interviews
-- help you win roles that match your capabilities
-
-Join in. Be visible. Build something real.
-Let’s create opportunities—for you, and for the people we’ll help hire.
-
-Welcome to the project.
-Let’s make something amazing.
+## Final note
+This is a community building something real. If you put in good work, I’ll advocate for you, introduce you to teams, and help you land roles. Let’s build the future of recruiting together.***

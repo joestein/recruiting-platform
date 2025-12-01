@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from ...models.user import User
 from ...schemas.candidates import CandidateFromResumeResponse, CandidateOut
-from ...services.agent_candidates import create_candidate_from_resume
+from ...services.agent_candidate import create_candidate_from_resume
 from ..deps import get_current_user, get_db
 
 router = APIRouter(prefix="/agent/candidates", tags=["agent-candidates"])

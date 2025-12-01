@@ -24,15 +24,11 @@ class QnaGraphRepository:
         for q in tree.questions.values():
             cypher = """
             MERGE (t:QTree {tree_id: $tree_id, user_type: $user_type})
-              ON CREATE SET t.namespace=$namespace, t.version=$version
-              ON MATCH SET t.namespace=$namespace, t.version=$version
-            MERGE (q:Question {id: $id})
-              ON CREATE SET q.user_type=$user_type, q.text=$text, q.attribute=$attribute,
-                            q.qtype=$qtype, q.tree_id=$tree_id, q.namespace=$namespace, q.end_of_tree=$end_of_tree,
-                            q.generation_prompt=$generation_prompt
-              ON MATCH SET q.user_type=$user_type, q.text=$text, q.attribute=$attribute,
-                           q.qtype=$qtype, q.tree_id=$tree_id, q.namespace=$namespace, q.end_of_tree=$end_of_tree,
-                           q.generation_prompt=$generation_prompt
+            SET t.namespace=$namespace, t.version=$version
+            MERGE (q:Question {id: $id, tree_id: $tree_id})
+            SET q.user_type=$user_type, q.text=$text, q.attribute=$attribute,
+                q.qtype=$qtype, q.namespace=$namespace, q.end_of_tree=$end_of_tree,
+                q.generation_prompt=$generation_prompt
             MERGE (t)-[:HAS_QUESTION]->(q)
             """
             params = {

@@ -63,8 +63,8 @@ def build_router_graph(qna_service: QnaService) -> Callable[[ChatState], ChatSta
             "process_answer": "process_answer",
             "general": "general_chat",
             "calendar": "calendar_agent",
+            "__default__": "general_chat",
         },
-        default="general_chat",
     )
 
     # End nodes after each operation to return control to caller
