@@ -52,6 +52,26 @@ class APIClient:
             return resp.json()["reply"]
         return f"[error {resp.status_code}] {resp.text}"
 
+    def router_chat(
+        self,
+        message: str,
+        messages: List[Dict[str, Any]] | None = None,
+        user_type: str | None = None,
+        qna_tree_id: str | None = None,
+    ) -> Dict[str, Any]:
+        payload: Dict[str, Any] = {"message": message}
+        if messages:
+            payload["messages"] = messages
+        if user_type:
+            payload["user_type"] = user_type
+        if qna_tree_id:
+            payload["qna_tree_id"] = qna_tree_id
+
+        resp = requests.post(f"{API_URL}/chat/router", json=payload, headers=self._headers())
+        if resp.status_code == 200:
+            return resp.json()
+        return {"error": f"[error {resp.status_code}] {resp.text}"}
+
     def get_jobs(self, status_filter: Optional[str] = None, q: Optional[str] = None) -> List[Dict[str, Any]]:
         params: Dict[str, Any] = {}
         if status_filter:

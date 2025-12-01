@@ -5,6 +5,7 @@ from . import (
     agent_candidates,
     agent_jobs,
     applications,
+    chat_routes,
     auth,
     candidates,
     jobs,
@@ -22,3 +23,4 @@ api_router.include_router(applications.router)
 api_router.include_router(matching.router)
 api_router.include_router(agent_jobs.router)
 api_router.include_router(agent_candidates.router)
+api_router.include_router(chat_routes.router)

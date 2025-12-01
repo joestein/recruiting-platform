@@ -11,7 +11,11 @@ def init_session():
     if "current_user" not in st.session_state:
         st.session_state["current_user"] = None
     if "chat_messages" not in st.session_state:
-        st.session_state["chat_messages"] = []  # {"role": "user"/"agent", "content": str}
+        st.session_state["chat_messages"] = []  # {"role": "user"/"assistant", "content": str}
+    if "qna_tree_id" not in st.session_state:
+        st.session_state["qna_tree_id"] = None
+    if "qna_mode" not in st.session_state:
+        st.session_state["qna_mode"] = False
 
 
 def main():
@@ -91,6 +95,8 @@ def main():
 
     with left:
         st.subheader("Chat")
+        if st.session_state.get("qna_mode"):
+            st.info(f"Q&A flow active (tree: {st.session_state.get('qna_tree_id')})")
 
         for msg in st.session_state["chat_messages"]:
             with st.chat_message("user" if msg["role"] == "user" else "assistant"):
@@ -100,8 +106,31 @@ def main():
 
         if user_input:
             st.session_state["chat_messages"].append({"role": "user", "content": user_input})
-            reply = api.agent_chat(message=user_input)
-            st.session_state["chat_messages"].append({"role": "agent", "content": reply})
+            payload_messages = []
+            for m in st.session_state["chat_messages"]:
+                role = "assistant" if m["role"] != "user" else "user"
+                payload_messages.append({"role": role, "content": m["content"]})
+
+            user_type = None
+            current_user = st.session_state.get("current_user")
+            if current_user and "role" in current_user:
+                user_type = "candidate" if current_user["role"] == "candidate" else "job_poster"
+
+            resp = api.router_chat(
+                message=user_input,
+                messages=payload_messages,
+                user_type=user_type,
+                qna_tree_id=st.session_state.get("qna_tree_id"),
+            )
+            if "error" in resp:
+                st.session_state["chat_messages"].append({"role": "assistant", "content": resp["error"]})
+            else:
+                st.session_state["chat_messages"] = [
+                    {"role": "user" if m["role"] == "user" else "assistant", "content": m["content"]}
+                    for m in resp.get("messages", [])
+                ]
+                st.session_state["qna_mode"] = resp.get("qna_mode", False)
+                st.session_state["qna_tree_id"] = resp.get("qna_tree_id", st.session_state.get("qna_tree_id"))
             st.experimental_rerun()
 
 

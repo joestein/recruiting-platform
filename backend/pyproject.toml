@@ -11,6 +11,14 @@ dependencies = [
   "SQLAlchemy>=2.0.0",
   "python-dotenv",
   "openai>=1.0.0",
+  "pyyaml",
+  "langgraph",
+  "langchain-core",
+  "langchain-community",
+  "instructor",
+  "asyncpg",
+  "psycopg[binary]",
+  "aiohttp",
 ]
 
 [project.optional-dependencies]
