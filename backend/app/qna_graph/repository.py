@@ -28,9 +28,11 @@ class QnaGraphRepository:
               ON MATCH SET t.namespace=$namespace, t.version=$version
             MERGE (q:Question {id: $id})
               ON CREATE SET q.user_type=$user_type, q.text=$text, q.attribute=$attribute,
-                            q.qtype=$qtype, q.tree_id=$tree_id, q.namespace=$namespace, q.end_of_tree=$end_of_tree
+                            q.qtype=$qtype, q.tree_id=$tree_id, q.namespace=$namespace, q.end_of_tree=$end_of_tree,
+                            q.generation_prompt=$generation_prompt
               ON MATCH SET q.user_type=$user_type, q.text=$text, q.attribute=$attribute,
-                           q.qtype=$qtype, q.tree_id=$tree_id, q.namespace=$namespace, q.end_of_tree=$end_of_tree
+                           q.qtype=$qtype, q.tree_id=$tree_id, q.namespace=$namespace, q.end_of_tree=$end_of_tree,
+                           q.generation_prompt=$generation_prompt
             MERGE (t)-[:HAS_QUESTION]->(q)
             """
             params = {
@@ -43,6 +45,7 @@ class QnaGraphRepository:
                 "attribute": q.attribute,
                 "qtype": q.qtype,
                 "end_of_tree": q.end_of_tree,
+                "generation_prompt": q.generation_prompt,
             }
             await self.client.run_cypher(cypher, params)
 

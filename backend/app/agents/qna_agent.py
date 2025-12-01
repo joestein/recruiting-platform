@@ -87,6 +87,39 @@ def _append_message(state: ChatState, role: str, content: str) -> None:
     state.messages.append({"role": role, "content": content})
 
 
+def _summarize_history(messages: list[dict[str, str]], limit: int = 8) -> str:
+    snippet = []
+    for m in messages[-limit:]:
+        snippet.append(f"{m.get('role')}: {m.get('content')}")
+    return "\n".join(snippet)
+
+
+def _generate_question_text(question: QuestionNode, state: ChatState) -> str:
+    """
+    If a generation_prompt is provided on the question node, use the LLM to craft
+    a contextual question based on conversation history. Falls back to static text.
+    """
+    if not question.generation_prompt:
+        return question.text
+    if not settings.OPENAI_API_KEY:
+        return question.text
+    try:
+        client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        history = _summarize_history(state.messages)
+        messages = [
+            {"role": "system", "content": question.generation_prompt},
+            {
+                "role": "user",
+                "content": f"Conversation history:\n{history}\n\nReturn one concise follow-up question.",
+            },
+        ]
+        resp = client.chat.completions.create(model=settings.OPENAI_CHAT_MODEL, messages=messages, max_tokens=100)
+        content = resp.choices[0].message.content if resp and resp.choices else None
+        return content.strip() if content else question.text
+    except Exception:
+        return question.text
+
+
 def ask_next_question(qna_service: QnaService):
     async def _ask(state: ChatState) -> ChatState:
         next_q = await qna_service.get_next_question_for_user(state.user_id, state.qna_tree_id or "")
@@ -96,7 +129,8 @@ def ask_next_question(qna_service: QnaService):
             return state
         state.qna_mode = True
         state.current_question_id = next_q.id
-        _append_message(state, "assistant", next_q.text)
+        question_text = _generate_question_text(next_q, state)
+        _append_message(state, "assistant", question_text)
         state.pending_attribute = next_q.attribute
         return state
 
@@ -152,7 +186,8 @@ def process_answer(qna_service: QnaService):
         if next_q:
             state.current_question_id = next_q.id
             state.qna_mode = True
-            _append_message(state, "assistant", next_q.text)
+            question_text = _generate_question_text(next_q, state)
+            _append_message(state, "assistant", question_text)
         else:
             state.qna_mode = False
             state.current_question_id = None

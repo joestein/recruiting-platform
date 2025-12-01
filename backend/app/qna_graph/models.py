@@ -26,6 +26,7 @@ class QuestionNode:
     options: List[Dict[str, Any]] = field(default_factory=list)
     follow_ups: Dict[str, str] = field(default_factory=dict)
     end_of_tree: bool = False
+    generation_prompt: Optional[str] = None
 
 
 @dataclass

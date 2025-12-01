@@ -49,6 +49,7 @@ def load_qtree_from_yaml(path: str) -> QTreeDefinition:
             options=q_data.get("options", []) or [],
             follow_ups=follow_ups,
             end_of_tree=bool(q_data.get("end_of_tree", False)),
+            generation_prompt=q_data.get("generation_prompt"),
         )
         questions[q_id] = question
 
