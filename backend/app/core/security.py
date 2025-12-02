@@ -6,7 +6,8 @@ from passlib.context import CryptContext
 
 from .config import get_settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Use PBKDF2 (SHA256) to avoid bcrypt backend/version quirks in container builds.
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 settings = get_settings()
 
 
