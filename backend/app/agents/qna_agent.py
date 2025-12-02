@@ -174,22 +174,28 @@ def process_answer(qna_service: QnaService):
             confidence = 0.4
 
         traits = _build_traits(state.user_id, question, normalized_value or "unknown", attributes, confidence)
-        await qna_service.record_answer(
-            user_id=state.user_id,
-            question=question,
-            raw_text=answer_text,
-            normalized_value=normalized_value,
-            attributes=attributes,
-            confidence=confidence,
-            traits=traits,
-        )
+        # Best-effort graph persistence; continue Q&A even if graph errors.
+        try:
+            await qna_service.record_answer(
+                user_id=state.user_id,
+                question=question,
+                raw_text=answer_text,
+                normalized_value=normalized_value,
+                attributes=attributes,
+                confidence=confidence,
+                traits=traits,
+            )
+        except Exception:
+            pass
 
         state.traits.setdefault(question.attribute or question.id, []).append(
             {"normalized_value": normalized_value, "attributes": attributes, "confidence": confidence}
         )
 
-        # decide next question
-        next_q = await qna_service.get_next_question_for_user(state.user_id, state.qna_tree_id or "")
+        # Decide next question using in-memory tree follow-ups to avoid graph lookups blocking the flow.
+        follow = question.follow_ups or {}
+        next_id = follow.get(normalized_value) or follow.get("default")
+        next_q = tree.questions.get(next_id) if next_id else None
         if next_q:
             state.current_question_id = next_q.id
             state.qna_mode = True

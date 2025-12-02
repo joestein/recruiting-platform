@@ -58,6 +58,8 @@ class APIClient:
         messages: List[Dict[str, Any]] | None = None,
         user_type: str | None = None,
         qna_tree_id: str | None = None,
+        qna_mode: bool = False,
+        current_question_id: str | None = None,
     ) -> Dict[str, Any]:
         payload: Dict[str, Any] = {"message": message}
         if messages:
@@ -66,6 +68,8 @@ class APIClient:
             payload["user_type"] = user_type
         if qna_tree_id:
             payload["qna_tree_id"] = qna_tree_id
+        payload["qna_mode"] = qna_mode
+        payload["current_question_id"] = current_question_id
 
         resp = requests.post(f"{API_URL}/chat/router", json=payload, headers=self._headers())
         if resp.status_code == 200:

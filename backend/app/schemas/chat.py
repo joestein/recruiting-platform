@@ -15,6 +15,8 @@ class ChatRequest(BaseModel):
     messages: List[ChatMessage] = Field(default_factory=list, description="Existing conversation history.")
     user_type: Optional[str] = Field(None, description="candidate or job_poster; defaults from user role.")
     qna_tree_id: Optional[str] = None
+    qna_mode: bool = False
+    current_question_id: Optional[str] = None
 
 
 class ChatResponse(BaseModel):

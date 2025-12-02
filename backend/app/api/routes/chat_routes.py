@@ -34,8 +34,8 @@ async def route_chat(
         user_id=str(current_user.id),
         user_type=user_type,  # type: ignore[arg-type]
         qna_tree_id=payload.qna_tree_id,
-        qna_mode=False,
-        current_question_id=None,
+        qna_mode=payload.qna_mode,
+        current_question_id=payload.current_question_id,
     )
     state.metadata["db"] = db
     state.metadata["current_user"] = current_user

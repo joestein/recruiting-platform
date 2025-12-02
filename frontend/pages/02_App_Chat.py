@@ -122,6 +122,8 @@ def main():
                 messages=payload_messages,
                 user_type=user_type,
                 qna_tree_id=st.session_state.get("qna_tree_id"),
+                qna_mode=st.session_state.get("qna_mode", False),
+                current_question_id=st.session_state.get("current_question_id"),
             )
             if "error" in resp:
                 st.session_state["chat_messages"].append({"role": "assistant", "content": resp["error"]})
@@ -132,6 +134,9 @@ def main():
                 ]
                 st.session_state["qna_mode"] = resp.get("qna_mode", False)
                 st.session_state["qna_tree_id"] = resp.get("qna_tree_id", st.session_state.get("qna_tree_id"))
+                st.session_state["current_question_id"] = resp.get(
+                    "current_question_id", st.session_state.get("current_question_id")
+                )
             rerun = getattr(st, "rerun", None) or getattr(st, "experimental_rerun", None)
             if rerun:
                 rerun()
