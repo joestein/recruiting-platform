@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import threading
 from typing import Any, Dict, List, Optional
 
 from instructor import from_openai
@@ -12,6 +13,19 @@ from ..qna_graph.service import QnaService
 from ..utils.langgraph_state import ChatState
 
 settings = get_settings()
+
+_openai_client: OpenAI | None = None
+_openai_client_lock = threading.Lock()
+
+
+def _get_openai_client() -> OpenAI:
+    """Return a thread-safe singleton OpenAI client instance."""
+    global _openai_client
+    if _openai_client is None:
+        with _openai_client_lock:
+            if _openai_client is None:
+                _openai_client = OpenAI(api_key=settings.OPENAI_API_KEY)
+    return _openai_client
 
 
 def _slugify(text: str) -> str:
@@ -47,7 +61,7 @@ def classify_with_instructor(question: QuestionNode, answer_text: str) -> tuple[
         if not settings.OPENAI_API_KEY:
             pref = _heuristic_classify_language(answer_text)
         else:
-            client = OpenAI(api_key=settings.OPENAI_API_KEY)
+            client = _get_openai_client()
             inst_client = from_openai(client)
             pref = inst_client.chat.completions.create(
                 model=settings.OPENAI_CHAT_MODEL,
@@ -111,7 +125,7 @@ def _generate_question_text(question: QuestionNode, state: ChatState) -> str:
     if not settings.OPENAI_API_KEY:
         return question.text
     try:
-        client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        client = _get_openai_client()
         history = _summarize_history(state.messages)
         messages = [
             {"role": "system", "content": question.generation_prompt},
