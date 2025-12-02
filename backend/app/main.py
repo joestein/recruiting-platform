@@ -1,3 +1,5 @@
+import logging
+import sys
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -9,6 +11,8 @@ from .qna_graph import get_graph_client
 from .qna_graph.repository import QnaGraphRepository
 from .qna_graph.service import QnaService
 from .agents.router_agent import build_router_graph
+
+logger = logging.getLogger(__name__)
 
 settings = get_settings()
 
@@ -38,7 +42,11 @@ async def startup_event() -> None:
     qna_service = QnaService(repo)
 
     config_dir = Path(__file__).parent / "qna_graph" / "config"
-    await qna_service.preload_directory(config_dir)
+    try:
+        await qna_service.preload_directory(config_dir)
+    except Exception as e:
+        logger.error(f"Failed to preload Q&A trees: {e}")
+        sys.exit(1)
 
     app.state.graph_client = graph_client
     app.state.qna_repo = repo
