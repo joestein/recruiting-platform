@@ -25,7 +25,8 @@ def build_router_graph(qna_service: QnaService) -> Callable[[ChatState], ChatSta
             state.metadata["route_decision"] = "calendar"
             return state
 
-        if state.qna_mode:
+        # If we have a current question, ensure we stay in Q&A even if qna_mode flag is missing
+        if state.qna_mode or state.current_question_id:
             # If we are mid-Q&A and have a current question, process answer
             if state.current_question_id:
                 state.metadata["route_decision"] = "process_answer"

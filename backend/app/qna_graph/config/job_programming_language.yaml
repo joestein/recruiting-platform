@@ -43,7 +43,10 @@ questions:
       You are asking a candidate about their experience as a polyglot engineer.
       Ask a concise question to elicit details on the languages they use most
       and the kinds of systems they've shipped across those languages.
-    end_of_tree: true
+    end_of_tree: false
+    follow_ups:
+      on_value:
+        default: q.optional_experience_polyglot
 
   q.language_followup:
     text: "Tell me about your recent work with that language."
@@ -53,4 +56,42 @@ questions:
       You are following up after the candidate named a favorite programming language.
       Ask a concise question about what they've built recently with that language,
       focusing on systems, scale, and impact.
+    end_of_tree: false
+    follow_ups:
+      on_value:
+        default: q.optional_experience_language
+
+  q.optional_experience_polyglot:
+    text: "Would you like to tell us about any other experiences in detail? When you are ready for the next question say \"next question\"."
+    type: free_text
+    attribute: extra_experience
+    end_of_tree: false
+    follow_ups:
+      on_value:
+        next question: q.polyglot_books
+        default: q.optional_experience_polyglot
+
+  q.optional_experience_language:
+    text: "Would you like to tell us about any other experiences in detail? When you are ready for the next question say \"next question\"."
+    type: free_text
+    attribute: extra_experience
+    end_of_tree: false
+    follow_ups:
+        on_value:
+          next question: q.end_thank_you
+          default: q.optional_experience_language
+
+  q.polyglot_books:
+    text: "What are some of your favorite tech books?"
+    type: free_text
+    attribute: favorite_tech_books
+    end_of_tree: false
+    follow_ups:
+      on_value:
+        default: q.end_thank_you
+
+  q.end_thank_you:
+    text: "Thank you."
+    type: free_text
+    attribute: closing_note
     end_of_tree: true
