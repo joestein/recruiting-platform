@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import threading
 from typing import Any, Dict, List, Optional
 
 from instructor import from_openai
@@ -14,13 +15,16 @@ from ..utils.langgraph_state import ChatState
 settings = get_settings()
 
 _openai_client: OpenAI | None = None
+_openai_client_lock = threading.Lock()
 
 
 def _get_openai_client() -> OpenAI:
-    """Return a singleton OpenAI client instance."""
+    """Return a thread-safe singleton OpenAI client instance."""
     global _openai_client
     if _openai_client is None:
-        _openai_client = OpenAI(api_key=settings.OPENAI_API_KEY)
+        with _openai_client_lock:
+            if _openai_client is None:
+                _openai_client = OpenAI(api_key=settings.OPENAI_API_KEY)
     return _openai_client
 
 
