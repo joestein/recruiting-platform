@@ -9,11 +9,21 @@ services:
       - SQLALCHEMY_DATABASE_URI=sqlite:///./dev.db
       - SECRET_KEY=CHANGE_ME
       - MATCHING_USE_OPENAI=false
+      - GRAPH_BACKEND=age
+      - AGE_HOST=age-db
+      - AGE_PORT=5432
+      - AGE_DB=recruiting
+      - AGE_USER=age
+      - AGE_PASSWORD=agepassword
+      - AGE_GRAPH_NAME=recruiting_graph
       # - OPENAI_API_KEY=sk-...
       # - OPENAI_EMBEDDING_MODEL=text-embedding-3-small
       # - OPENAI_CHAT_MODEL=gpt-4o-mini
     ports:
       - "8000:8000"
+    depends_on:
+      age-db:
+        condition: service_healthy
 
   frontend:
     build:
@@ -25,3 +35,23 @@ services:
       - "8501:8501"
     depends_on:
       - backend
+
+  age-db:
+    image: apache/age:latest
+    container_name: recruiting-age-db
+    environment:
+      POSTGRES_USER: age
+      POSTGRES_PASSWORD: agepassword
+      POSTGRES_DB: recruiting
+    ports:
+      - "5432:5432"
+    volumes:
+      - age_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U age -d recruiting"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  age_data:

@@ -25,6 +25,7 @@ def main():
         st.subheader("Login")
         email = st.text_input("Email", key="login_email")
         password = st.text_input("Password", type="password", key="login_password")
+        password = password.strip()
         if st.button("Login"):
             token = api.login(email=email, password=password)
             if token:
@@ -40,6 +41,7 @@ def main():
         st.subheader("Register")
         email_r = st.text_input("Email", key="reg_email")
         password_r = st.text_input("Password", type="password", key="reg_password")
+        password_r = password_r.strip()
         org_name_r = st.text_input("Organization Name", key="reg_org_name")
 
         if st.button("Register"):

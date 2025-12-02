@@ -1,0 +1,55 @@
+version: 1
+namespace: candidate_onboarding
+user_type: candidate
+tree_id: candidate.programming_language
+root_question_id: q.programming_language
+
+questions:
+  q.programming_language:
+    text: "What's your favorite programming language to work in?"
+    type: free_text_classified
+    attribute: programming_language
+    classifier:
+      strategy: instructor_dataclass
+      dataclass: ProgrammingLanguagePreference
+    options:
+      - label: "Polyglot / depends on the problem"
+        tags: ["polyglot", "no_favorite"]
+        patterns:
+          - "whatever the problem is"
+          - "depends on the problem"
+          - "no favorite"
+          - "it depends"
+        normalized_value: polyglot
+      - label: "Specific language"
+        tags: ["single_language"]
+        patterns:
+          - "python"
+          - "java"
+          - "go"
+          - "rust"
+          - "typescript"
+        normalized_value_from_entity: true
+    follow_ups:
+      on_value:
+        polyglot: q.polyglot_followup
+        java: q.java_followup
+        default: q.other_language_followup
+
+  q.polyglot_followup:
+    text: "Nice, being polyglot is a strength. Which languages are you most comfortable taking to production today?"
+    type: free_text
+    attribute: strong_languages
+    end_of_tree: true
+
+  q.java_followup:
+    text: "Great, Java is solid. What kinds of systems have you built in Java recently?"
+    type: free_text
+    attribute: java_experience_summary
+    end_of_tree: true
+
+  q.other_language_followup:
+    text: "Cool. What kinds of systems have you built most recently with that language?"
+    type: free_text
+    attribute: primary_language_experience
+    end_of_tree: true

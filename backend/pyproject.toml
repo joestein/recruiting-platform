@@ -6,11 +6,22 @@ dependencies = [
   "fastapi",
   "uvicorn[standard]",
   "pydantic>=2.0.0",
+  "pydantic-settings>=2.2.0",
+  "email-validator",
+  "python-multipart",
   "python-jose[cryptography]",
   "passlib[bcrypt]",
   "SQLAlchemy>=2.0.0",
   "python-dotenv",
   "openai>=1.0.0",
+  "pyyaml",
+  "langgraph",
+  "langchain-core",
+  "langchain-community",
+  "instructor",
+  "asyncpg",
+  "psycopg[binary]",
+  "aiohttp",
 ]
 
 [project.optional-dependencies]

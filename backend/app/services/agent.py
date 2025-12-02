@@ -8,7 +8,7 @@ from ..models.application import Application
 from ..models.candidate import Candidate
 from ..models.job import Job
 from ..models.user import User
-from .agent_jobs import create_job_from_prompt
+from .agent_job import create_job_from_prompt
 from .matching import (
     CandidateMatch,
     JobMatch,
@@ -28,6 +28,7 @@ def _format_jobs(jobs: List[Job]) -> str:
         )
     if len(jobs) > 10:
         lines.append(f"...and {len(jobs) - 10} more.")
+    lines.append("\nIf you'd like to answer some job-fit questions, say 'start job questions'.")
     return "\n".join(lines)
 
 
