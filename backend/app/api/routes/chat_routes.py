@@ -39,7 +39,8 @@ async def route_chat(
     state.metadata["db"] = db
     state.metadata["current_user"] = current_user
 
-    result_state: ChatState = await router_graph.ainvoke(state)
+    raw_state = await router_graph.ainvoke(state)
+    result_state: ChatState = raw_state if isinstance(raw_state, ChatState) else ChatState(**raw_state)
 
     return ChatResponse(
         messages=[ChatMessage(**m) for m in result_state.messages],

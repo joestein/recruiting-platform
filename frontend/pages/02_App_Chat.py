@@ -131,7 +131,9 @@ def main():
                 ]
                 st.session_state["qna_mode"] = resp.get("qna_mode", False)
                 st.session_state["qna_tree_id"] = resp.get("qna_tree_id", st.session_state.get("qna_tree_id"))
-            st.experimental_rerun()
+            rerun = getattr(st, "rerun", None) or getattr(st, "experimental_rerun", None)
+            if rerun:
+                rerun()
 
 
 if __name__ == "__main__":
