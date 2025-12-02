@@ -1,0 +1,56 @@
+version: 1
+namespace: job_onboarding
+user_type: job_poster
+tree_id: job.programming_language
+root_question_id: q.programming_language
+
+questions:
+  q.programming_language:
+    text: "What's your favorite programming language to work in?"
+    type: free_text_classified
+    attribute: programming_language
+    classifier:
+      strategy: instructor_dataclass
+      dataclass: ProgrammingLanguagePreference
+    options:
+      - label: "Polyglot / depends"
+        tags: ["polyglot", "no_favorite"]
+        patterns:
+          - "whatever the problem is"
+          - "depends on the problem"
+          - "no favorite"
+          - "it depends"
+        normalized_value: polyglot
+      - label: "Specific language"
+        tags: ["single_language"]
+        patterns:
+          - "python"
+          - "java"
+          - "go"
+          - "rust"
+          - "typescript"
+        normalized_value_from_entity: true
+    follow_ups:
+      on_value:
+        polyglot: q.polyglot_followup
+        default: q.language_followup
+
+  q.polyglot_followup:
+    text: "Tell me more about being polyglot."
+    type: free_text
+    attribute: polyglot_experience
+    generation_prompt: |
+      You are asking a candidate about their experience as a polyglot engineer.
+      Ask a concise question to elicit details on the languages they use most
+      and the kinds of systems they've shipped across those languages.
+    end_of_tree: true
+
+  q.language_followup:
+    text: "Tell me about your recent work with that language."
+    type: free_text
+    attribute: primary_language_experience
+    generation_prompt: |
+      You are following up after the candidate named a favorite programming language.
+      Ask a concise question about what they've built recently with that language,
+      focusing on systems, scale, and impact.
+    end_of_tree: true

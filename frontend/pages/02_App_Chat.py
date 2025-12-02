@@ -36,19 +36,19 @@ def main():
     with right:
         st.subheader("Quick Commands")
 
-        if st.button("List jobs"):
-            st.session_state["chat_messages"].append({"role": "user", "content": "List jobs"})
+        if st.button("Start Questions"):
+            st.session_state["chat_messages"].append({"role": "user", "content": "start job questions"})
 
-        if st.button("Show open jobs"):
-            st.session_state["chat_messages"].append({"role": "user", "content": "Show open jobs"})
+        # if st.button("Show open jobs"):
+        #     st.session_state["chat_messages"].append({"role": "user", "content": "Show open jobs"})
 
-        if st.button("List candidates"):
-            st.session_state["chat_messages"].append({"role": "user", "content": "List candidates"})
+        # if st.button("List candidates"):
+        #     st.session_state["chat_messages"].append({"role": "user", "content": "List candidates"})
 
-        if st.button("Show candidates in New York"):
-            st.session_state["chat_messages"].append(
-                {"role": "user", "content": "Show candidates in New York"}
-            )
+        # if st.button("Show candidates in New York"):
+        #     st.session_state["chat_messages"].append(
+        #         {"role": "user", "content": "Show candidates in New York"}
+        #     )
 
         st.markdown("---")
         st.write(
@@ -105,6 +105,7 @@ def main():
         user_input = st.chat_input("Ask about jobs, candidates, or pipelines...")
 
         if user_input:
+            print(f"user input: {user_input}")
             st.session_state["chat_messages"].append({"role": "user", "content": user_input})
             payload_messages = []
             for m in st.session_state["chat_messages"]:

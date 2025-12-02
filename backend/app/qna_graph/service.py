@@ -22,7 +22,11 @@ class QnaService:
         tree = load_qtree_from_yaml(path)
         async with self._lock:
             self._trees[tree.tree_id] = tree
-        await self.repo.upsert_qtree(tree)
+        try:
+            await self.repo.upsert_qtree(tree)
+        except Exception:
+            # If graph persistence fails, keep the in-memory tree so Q&A can still run.
+            pass
         return tree
 
     async def preload_directory(self, config_dir: Path) -> List[QTreeDefinition]:
@@ -41,7 +45,11 @@ class QnaService:
         if not tree:
             return None
 
-        last = await self.repo.get_last_answer(user_id, tree_id)
+        try:
+            last = await self.repo.get_last_answer(user_id, tree_id)
+        except Exception:
+            # On graph fetch errors, fall back to root question
+            return tree.questions.get(tree.root_question_id)
         if not last:
             return tree.questions.get(tree.root_question_id)
 

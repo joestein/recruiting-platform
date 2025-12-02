@@ -1,0 +1,35 @@
+organization:
+  name: Demo Recruiting Org
+  slug: demo
+  plan: free
+
+user:
+  email: demo@example.com
+  full_name: Demo Admin
+  role: org_admin
+  password: changeme123
+
+job:
+  title: Full Stack Engineer
+  department: Engineering
+  location: Remote
+  employment_type: Full-time
+  remote_option: Remote
+  salary_min: 120000
+  salary_max: 160000
+  currency: USD
+  description: >
+    Build and ship features across backend (FastAPI) and frontend (Streamlit/React).
+    Work closely with recruiting agents and matching services. Improve performance,
+    observability, and developer experience.
+  required_skills:
+    - Python
+    - FastAPI
+    - SQLAlchemy
+    - React
+    - AWS
+  nice_to_have_skills:
+    - Docker
+    - Kubernetes
+  status: open
+  is_public: true

@@ -9,6 +9,7 @@ from .qna_graph import get_graph_client
 from .qna_graph.repository import QnaGraphRepository
 from .qna_graph.service import QnaService
 from .agents.router_agent import build_router_graph
+from .seed import seed_demo_data
 
 settings = get_settings()
 
@@ -44,6 +45,9 @@ async def startup_event() -> None:
     app.state.qna_repo = repo
     app.state.qna_service = qna_service
     app.state.router_graph = build_router_graph(qna_service)
+
+    # Seed demo data (org, user, job) if YAML present
+    seed_demo_data(settings.SEED_JOBS_FILE, settings.SEED_DEMO_PASSWORD)
 
 
 @app.on_event("shutdown")

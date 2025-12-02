@@ -20,7 +20,14 @@ def _slugify(text: str) -> str:
 
 def _heuristic_classify_language(answer: str) -> ProgrammingLanguagePreference:
     lower = answer.lower()
-    polyglot_patterns = ["depends", "no favorite", "whatever", "polyglot"]
+    polyglot_patterns = [
+        "depends",
+        "no favorite",
+        "whatever",
+        "whatever the problem is",
+        "depends on the problem",
+        "polyglot",
+    ]
     for pat in polyglot_patterns:
         if pat in lower:
             return ProgrammingLanguagePreference(kind="polyglot", language_name=None)

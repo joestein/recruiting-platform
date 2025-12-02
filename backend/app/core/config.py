@@ -41,6 +41,10 @@ class Settings(BaseSettings):
     NEPTUNE_USE_HTTPS: bool = True
     NEPTUNE_USE_BOLT: bool = False
 
+    # Seeding
+    SEED_JOBS_FILE: str = "backend/app/data/seed_jobs.yaml"
+    SEED_DEMO_PASSWORD: str = "changeme123"
+
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 
 

@@ -110,7 +110,7 @@ class QnaGraphRepository:
         cypher = """
         MATCH (u:User {id:$user_id})-[:GAVE_ANSWER]->(a:Answer)-[:ABOUT]->(q:Question {tree_id:$tree_id})
         RETURN a.question_id AS question_id, a.normalized_value AS normalized_value, a.timestamp AS ts
-        ORDER BY ts DESC
+        ORDER BY a.timestamp DESC
         LIMIT 1
         """
         rows = await self.client.run_cypher(cypher, {"user_id": user_id, "tree_id": tree_id})

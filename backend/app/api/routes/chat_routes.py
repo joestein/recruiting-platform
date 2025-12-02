@@ -19,6 +19,7 @@ async def route_chat(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ) -> ChatResponse:
+    print(f"Routing chat message: {payload.message}")
     if not hasattr(request.app.state, "router_graph"):
         raise HTTPException(status_code=500, detail="Router graph not initialized")
 
@@ -42,10 +43,15 @@ async def route_chat(
     raw_state = await router_graph.ainvoke(state)
     result_state: ChatState = raw_state if isinstance(raw_state, ChatState) else ChatState(**raw_state)
 
+    # Strip non-serializable metadata (db session, user objects)
+    meta = dict(result_state.metadata or {})
+    meta.pop("db", None)
+    meta.pop("current_user", None)
+
     return ChatResponse(
         messages=[ChatMessage(**m) for m in result_state.messages],
         qna_mode=result_state.qna_mode,
         current_question_id=result_state.current_question_id,
         qna_tree_id=result_state.qna_tree_id,
-        metadata=result_state.metadata,
+        metadata=meta,
     )

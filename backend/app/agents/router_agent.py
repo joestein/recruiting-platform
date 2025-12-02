@@ -40,6 +40,14 @@ def build_router_graph(qna_service: QnaService) -> Callable[[ChatState], ChatSta
             state.metadata["route_decision"] = "ask_next_question"
             return state
 
+        print(f"text for routing: {text}")
+        # Start job-programming-language Q&A when asked explicitly
+        if "start job questions" in text or "job q&a" in text or "interact with job" in text:
+            state.qna_tree_id = "job.programming_language"
+            state.qna_mode = True
+            state.metadata["route_decision"] = "ask_next_question"
+            return state
+
         state.metadata["route_decision"] = "general"
         return state
 

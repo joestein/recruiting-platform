@@ -28,6 +28,7 @@ def _format_jobs(jobs: List[Job]) -> str:
         )
     if len(jobs) > 10:
         lines.append(f"...and {len(jobs) - 10} more.")
+    lines.append("\nIf you'd like to answer some job-fit questions, say 'start job questions'.")
     return "\n".join(lines)
 
 
